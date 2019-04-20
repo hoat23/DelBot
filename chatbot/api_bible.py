@@ -1,7 +1,7 @@
 # coding: utf-8
 # Developer: Deiner Zapata Silva.
 # Date: 19/04/2019
-# Description: Integrar alertas con messenger
+# Description: API de consulta la Biblia para integrar con messenger
 #########################################################################################
 # Todos iniciamos con un gran amor a la ciencia, luego el ego interfiere, 
 # la obsesion y cuando volteas ya estas muy lejos de donde querias
