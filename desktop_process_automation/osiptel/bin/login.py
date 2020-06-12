@@ -10,9 +10,9 @@ import pyperclip as pyc #pip install pyperclip
 from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
 from utils import *
+from logging_advance import *
 
 def build_driver_web(path_driver="D:\scraping\chromedriver.exe"):
-    #driver.maximize_window()
     options = webdriver.ChromeOptions() 
     options.add_argument("--start-maximized")
     options.add_argument("--lang=es")
@@ -41,24 +41,21 @@ def input_string(string):
     time.sleep(1)
 
 def load_credentials(user, pasw):
-    logging.debug("load_credentials | user:{0}".format(user))
-    #gui.press('tab')
-    input_string(user)
-    gui.press('tab')
-    input_string(pasw)
-    gui.press('enter')
+    driver.find_element_by_id("umb-username").send_keys(user)
+    driver.find_element_by_id ("umb-passwordTwo").send_keys(pasw)
+    driver.find_element_by_xpath("//button[@type='submit']").click()
     return True
 
 
 if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
-    logging.debug("| INI | {0} testing".format(__file__))
-    url = "https://localhost:44347/umbraco/"#"http://44.231.13.118/umbraco/"
+    x = logging_advance(service=__file__, send_elk=False)
+    x.print_debug("", data_json={}, name_function="__main__")
+    url = "https://localhost:44347/umbraco/"
     user = "usuario@osiptel.com"
     pasw = "maQUEtaHTML567"
     rpt = load_url(url)
     load_credentials(user,pasw)
     while(True):
         pass
-    logging.debug("| END | {0} testing".format(__file__))
+    x.print_debug("", data_json={}, name_function="__main__")
     pass
