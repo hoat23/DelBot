@@ -19,10 +19,15 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
     logging.debug("| INI | {0} testing".format(__file__))
     #sys.setdefaultencoding( "utf-8" )
+    idx_sheet = 0#int( input('retomar sheet:') ) # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
+    idx_doc = 620#int( input('retomar docum:') )
+    
+    retomar={'idx_sheet': idx_sheet, 'idx_doc': idx_doc}
     ## open browser and login
     url = "https://localhost:44347/umbraco/"#"http://44.231.13.118/umbraco/"
     user = "usuario@osiptel.com"
     pasw = "maQUEtaHTML567"
+
     driver = login(url, user, pasw)
 
     ## loading excel
@@ -45,7 +50,7 @@ if __name__ == "__main__":
     load_page_formulario(url,driver)
 
     ## loading data from excel
-    fill_data_formulario(data_json, list_sheets, driver)
+    fill_data_formulario(data_json, list_sheets, driver, retomar = retomar)
     
     logging.debug("| END | {0} testing".format(__file__))
     pass

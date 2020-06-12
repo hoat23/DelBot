@@ -40,21 +40,24 @@ def input_string(string):
     gui.keyUp('ctrl')
     time.sleep(1)
 
-def load_credentials(user, pasw):
+def load_credentials(user, pasw, driver):
     driver.find_element_by_id("umb-username").send_keys(user)
     driver.find_element_by_id ("umb-passwordTwo").send_keys(pasw)
     driver.find_element_by_xpath("//button[@type='submit']").click()
     return True
 
+def login(url, user, pasw):
+    driver = load_url(url)
+    load_credentials(user,pasw, driver)
+    return driver
 
 if __name__ == "__main__":
     x = logging_advance(service=__file__, send_elk=False)
-    x.print_debug("", data_json={}, name_function="__main__")
+    x.print_debug("", data_json={}, name_function="__main__", send_elk=False)
     url = "https://localhost:44347/umbraco/"
     user = "usuario@osiptel.com"
     pasw = "maQUEtaHTML567"
-    rpt = load_url(url)
-    load_credentials(user,pasw)
+    login(url, user, pasw)
     while(True):
         pass
     x.print_debug("", data_json={}, name_function="__main__")

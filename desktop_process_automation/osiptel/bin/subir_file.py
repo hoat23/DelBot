@@ -64,8 +64,8 @@ if __name__ == "__main__":
     logging.debug("| INI | {0} testing".format(__file__))
     directory = "D:/scraping/book20/CD/1"
     namefile = "res00194CDOSIPTEL.pdf"
-    subir_file(namefile, directory)
-    #get_files_in_directory(directory, recursive=True, print_tree=True)
+    #subir_file(namefile, directory)
+    get_files_in_directory(directory, recursive=True, print_tree=True)
     #detect_text()
     logging.debug("| END | {0} testing".format(__file__))
     pass

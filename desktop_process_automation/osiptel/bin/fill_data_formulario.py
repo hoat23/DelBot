@@ -94,22 +94,35 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
     #.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
     numero_res = unicodedata.normalize('NFD', data_json['resolucion'] )
     anio = data_json['anio']
-    description = unicodedata.normalize('NFD', data_json['tema'] )
+    description = normalize(unicodedata.normalize('NFD', data_json['tema'] ) )
     link_pagina = unicodedata.normalize('NFD', data_json['enlace'] )
     materia = unicodedata.normalize('NFD', data_json['materia'] ).upper()
     submateria = unicodedata.normalize('NFD', data_json['submateria']).upper()
     organo_res = unicodedata.normalize('NFD', data_json['or'] )
 
     logging.debug("{0}".format(description))
-    driver.implicitly_wait(10)  
+    driver.implicitly_wait(10)
+    # Ingreso de información correspondiente
+    driver.find_element_by_id("headerName").send_keys()
+    driver.execute_script("document.getElementById('headerName').value='"+numero_res[:-1]+"'")
+    driver.find_element_by_id("headerName").send_keys(numero_res[-1:])
+    driver.execute_script("document.getElementById('seo_titulo').value='"+numero_res[:-1]+"'")
+    driver.find_element_by_id ("seo_titulo").send_keys(numero_res[-1:])
+    driver.execute_script("document.getElementById('seo_desc').value='"+description[:-1]+"'")
+    driver.find_element_by_id ("seo_desc").send_keys(description[-1:])
+    driver.execute_script("document.getElementById('res_titulo').value='"+numero_res[:-1]+"'")
+    driver.find_element_by_id ("res_titulo").send_keys(numero_res[-1:])
+    driver.execute_script("document.getElementById('res_desc').value='"+description[:-1]+"'")
+    driver.find_element_by_id ("res_desc").send_keys(description[-1:])
+    """
     # Ingreso de información correspondiente
     driver.find_element_by_id("headerName").send_keys()
     driver.find_element_by_id("headerName").send_keys(numero_res)
     driver.find_element_by_id ("seo_titulo").send_keys(numero_res)
     driver.find_element_by_id ("seo_desc").send_keys(description)
     driver.find_element_by_id ("res_titulo").send_keys(numero_res)
-    driver.find_element_by_id ("res_desc").send_keys(description)
-    
+    driver.find_element_by_id ("res_desc").send_keys(description)"""
+
     # Ingreso de datos por bloque de selección
     select = driver.find_elements_by_xpath("//*[@name='dropDownList']")
     search_elem_in_options(organo_res, select[0]) # Organo Resolutivo
@@ -121,17 +134,18 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
 
     return valida_fill_data_formulario()
 
-def fill_data_formulario(data_json, list_sheets, driver):
+def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0, 'idx_doc': 0}):
     
     logging.info("fill_data_formulario |  url = {0}".format( driver.current_url ) )
-    
-    for idx_sheet in range(0,3): # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
+    idx_sheet = 0  + retomar['idx_sheet']
+    while idx_sheet < len(list_sheets): # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
         one_sheet = list_sheets[idx_sheet]
         key = one_sheet.lower().replace(" ","")
         bucket_documents = data_json[key] # diccionario de documentos por cada tipo
         logging.info("fill_data_formulario | {0:04d} | {1}".format(len(bucket_documents), key))
-        idx = 0
-        for one_document in bucket_documents:
+        idx = 0 + retomar['idx_doc']
+        while idx < len(bucket_documents):
+            one_document = bucket_documents[idx]
             #new formulario
             while not load_page_crearresolucion():
                 print("loading new page [crearresolucion]")
@@ -140,23 +154,25 @@ def fill_data_formulario(data_json, list_sheets, driver):
             
             #load page 
             logging.info("fill_data_formulario | reaload page idx={0}".format(idx))
-            one_document.update({'idx':idx, 'sheet': idx_sheet})
+            one_document.update({'idx':idx, 'sheet': one_sheet})
             fill_data_one_doc(one_document, one_sheet, driver)
-            agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='openLinkPicker()']")
-            agregar_documentos[0].click()
-            if load_doc_principal_y_asociados(one_document):
+            
+            if load_doc_principal_y_asociados(one_document,driver):
                 time.sleep(2)
-            cont = 0
+            
+            #Guardar la resolución
+            driver.implicitly_wait(10)
+            btn_guardar = driver.find_elements_by_xpath("//*[@ng-click='vm.clickButton($event)']")
+            btn_guardar[2].click()
+            cont=0
             while cont < 100:
-                if load_page(filename="boton_guardarypublicar.png", set_click=True, sleep_time=2.3, intentos=20):
-                    pass
                 if load_page(filename="boton_back_to_new_resolucion.png", set_click=True, intentos=20,sleep_time=3.2):
                     time.sleep(5)
                     cont = cont + 1
                     break
+            
             time.sleep(5)
             #input("Next---document ------------->")
-            
             idx = idx + 1
     return drive
 #######################################################################################

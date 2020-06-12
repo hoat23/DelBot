@@ -8,6 +8,7 @@ import time
 import pyautogui as gui
 import pyperclip as pyc #pip install pyperclip
 import unicodedata
+import io
 from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
 from utils import *
@@ -73,60 +74,121 @@ def load_page_goto(path_media, intentos=3, directory="D:/DPA/img"):
                         break
     return False
 
-def load_documento_principal(doc_principal, directory_doc_principal):
-    if load_page_seleccionar_medio():
-        # Existen 3 rutas posibles
-        path_media = [
-            "win_media.png",
-            "win_media_repositorio_de_documentos.png",
-            "win_media_repositorio_de_documentos_buscador_de_normas.png"]
-        
-        if load_page_goto(path_media):
-            if load_page(filename="boton_subir.png", set_click=True):
-                # Subiendo documento principal
-                subir_file(doc_principal, directory_doc_principal)
-                logging.info("load_documento_principal [{0}]".format(doc_principal))
-                cont = 0
-                while cont<100:
+def load_documento_principal(doc_principal, directory_doc_principal, driver):
+    #if load_page_seleccionar_medio():
+    # Existen 3 rutas posibles
+    
+    agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='switchToMediaPicker()']")
+    agregar_documentos[0].click() #click boton [Selecciona medio]
+    
+    path_media = [
+        "win_media.png",
+        "win_media_repositorio_de_documentos.png",
+        "win_media_repositorio_de_documentos_buscador_de_normas.png"]
+    
+    if load_page_goto(path_media):
+        if load_page(filename="boton_subir.png", set_click=True):
+            # Subiendo documento principal
+            subir_file(doc_principal, directory_doc_principal)
+            logging.info("load_documento_principal [{0}]".format(doc_principal))
+            # ng-click="vm.clickButton($event)"
+            
+            cont=0
+            while cont<100:
+                time.sleep(1)
+
+                if load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=5):
                     time.sleep(1)
-                    if load_page(filename="boton_seleccionar.png", set_click=True, sleep_time=2, intentos=5):
-                        pass
-                    if load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=5):
-                        return True
-                    cont = cont + 1
-                return False
+                    return True
+                
+                if load_page(filename="boton_seleccionar.png", set_click=True, sleep_time=2, intentos=5):
+                    time.sleep(1)
+                    pass
+                cont = cont + 1
+            
+            return False
+            
     return False
 
-def load_documento_asociado(doc_asociado):
-    directory = "D:/scraping/book20/CD/1"
-    namefile = "res00194CDOSIPTEL.pdf"
-    input("load_documento_asociado {0} pauseeeeeeeeeeeeeeeeeeeee".format(doc_asociado))
-    #subir_file(namefile, directory)
-    return True
+def load_documento_asociado(doc_asociado_json,driver):
+    doc_asociado = doc_asociado_json["doc_asociado"]
+    rename_doc = doc_asociado_json["rename"]
+    directory_doc = doc_asociado_json["directory"]
+
+    agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='switchToMediaPicker()']")
+    agregar_documentos[0].click() #click boton [Selecciona medio]
+
+    driver.execute_script("document.getElementsByTagName('input')[13].value='"+rename_doc+"'")
+    path_media = [
+        "win_media.png",
+        "win_media_repositorio_de_documentos.png",
+        "win_media_repositorio_de_documentos_buscador_de_normas.png"]
+    
+    if load_page_goto(path_media):
+        if load_page(filename="boton_subir.png", set_click=True):
+            # Subiendo documento principal
+            subir_file(doc_asociado, directory_doc)
+            logging.info("load_documento_asociado [{0}]".format(doc_asociado))
+            # ng-click="vm.clickButton($event)"
+            
+            cont=0
+            while cont<100:
+                time.sleep(1)
+
+                if load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=5):
+                    time.sleep(1)
+                    return True
+                
+                if load_page(filename="boton_seleccionar.png", set_click=True, sleep_time=2, intentos=5):
+                    time.sleep(1)
+                    pass
+                cont = cont + 1
+            
+            return False
+    return False
+
+def get_name_doc_asociado(filename, path_dir):
+    filepath="{0}/{1}".format(path_dir, filename)
+    name = ""
+    with open(filepath) as fp:
+            name = fp.readline()
+    """try:
+        with open(filepath) as fp:
+            name = fp.readline()
+    except:
+        logging.error("get_name_doc_asociado | {0}".format(filename))
+    finally:"""
+    fp.close()
+    
+    return name
 
 def valida_path(path_directory_idx, one_document):
     #subir_file(namefile, directory)
-    tree_files = get_files_in_directory(path_directory_idx, recursive=True, print_tree=False)
+    tree_files = get_files_in_directory(path_directory_idx, recursive=True, print_tree=True)
+    print_json(tree_files)
     if 'files' in tree_files:
         files_principal = tree_files['files']
 
     if 'subdir' in tree_files:
         files_asociados = tree_files['subdir']['files']
+        path_dir = tree_files['subdir']['path']
     else:
         files_asociados = []
     doc_principal = ""
     for file in files_principal:
-        if file.find('.pdf'):
+        if file.find('.pdf')>=0:
             doc_principal = file
     
     doc_asociados=[]
     for file in files_asociados:
-        if file.find('.pdf'):
-            doc_asociados.append(file)
+        if file.find('.pdf')>=0:
+            filename = file[:file.find('.pdf')]+".txt"
+            name_doc_asociado = get_name_doc_asociado(filename, path_dir)
+            doc_asociados.append({"doc_asociado": file, "rename": name_doc_asociado, "directory": path_dir})
     one_document.update({'doc_principal': doc_principal, 'doc_asociados': doc_asociados, 'tree_files': tree_files})
     return one_document
 
-def load_doc_principal_y_asociados(one_document, directory="D:/scraping/book20"):
+def load_doc_principal_y_asociados(one_document, driver, directory="D:/scraping/book20"):
     logging.debug("load_doc_principal_y_asociados | {0}".format(one_document['enlace']))
     idx = one_document['idx']
     one_sheet = one_document['sheet']
@@ -134,17 +196,19 @@ def load_doc_principal_y_asociados(one_document, directory="D:/scraping/book20")
     path_directory_princ = "{0}/{1}/{2}".format(directory, sub_directory, idx+1)
     one_document = valida_path(path_directory_princ, one_document)#queda pendiente validar one_document dentro de valida path
     x.print_debug("one_document", data_json=one_document, name_function="load_doc_principal_y_asociados", send_elk=False)
+
+
+    agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='openLinkPicker()']")
+    if len(one_document['doc_principal'])>0:
+        # click en (anadir) para cargar nuevo documento principal
+        agregar_documentos[0].click()
+        load_documento_principal(one_document['doc_principal'], path_directory_princ, driver)
     
-    intentos_load_page = 3
-    for n_intento in range(0,intentos_load_page):
-        if load_page_load_documento_principal() and len(one_document['doc_principal'])>0:
-            load_documento_principal(one_document['doc_principal'], path_directory_princ)
-            for one_doc_asociado in one_document['doc_asociados']:
-                load_documento_asociado(one_doc_asociado)
-            #load_page(filename="boton_guardarypublicar.png", set_click=True, sleep_time=2.3, intentos=20)
-            return True
-        else:
-            input("load_doc_principal_y_asociados ... error")
+    for one_doc_asociado in one_document['doc_asociados']:
+        # click en (anadir) para cargar documento asociado
+        agregar_documentos[1].click()
+        load_documento_asociado(one_doc_asociado, driver)
+    #load_page(filename="boton_guardarypublicar.png", set_click=True, sleep_time=2.3, intentos=20)
     return False
 
 if __name__ == "__main__":
