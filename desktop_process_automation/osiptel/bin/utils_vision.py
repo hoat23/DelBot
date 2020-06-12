@@ -22,7 +22,7 @@ import pyautogui as gui
 import pyperclip as pyc #pip install pyperclip
 import unicodedata
 
-def load_page(filename="img_to_search.png", directory="D:/DPA/img",pos_xy=None, set_click=False, intentos=20,sleep_time=3.2):
+def load_page(filename="img_to_search.png", directory="D:/DPA/img",pos_xy=None, set_click=False, intentos=20,sleep_time=3.2,dy=0):
     #logging.debug("load_page | {0}".format(filename))
     fullpath = "{0}/{1}".format(directory, filename)
     cont = 0
@@ -36,12 +36,12 @@ def load_page(filename="img_to_search.png", directory="D:/DPA/img",pos_xy=None, 
         logging.debug("buton_found     | {0} | {1}".format(filename, pos_box))
         pos_xy = gui.center(pos_box)
         try:
-           gui.moveTo(pos_xy)
+           gui.dragTo(pos_xy.x, pox_xy.y + dy)
         except:
             pass
         if set_click and pos_xy!=None:
             logging.info("click_on_button  | {0} | {1}".format(filename, pos_xy))
-            gui.click(pos_xy)
+            gui.click(pos_xy.x, pos_xy.y + dy)
         else:
             logging.error("click_on_button | pos_xy=None |")
         time.sleep(1)

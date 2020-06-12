@@ -13,6 +13,7 @@ from utils_vision import *
 from os import walk
 #########################################################################################
 def subir_file(filename, directory):
+    
     if load_page(filename="win_subir_file.png", directory="D:/DPA/img",pos_xy=None, set_click=True, intentos=3,sleep_time=2):
         logging.info("subir_file | {0}".format(filename))
         input_string_pyc(directory)
@@ -63,8 +64,8 @@ if __name__ == "__main__":
     logging.debug("| INI | {0} testing".format(__file__))
     directory = "D:/scraping/book20/CD/1"
     namefile = "res00194CDOSIPTEL.pdf"
-    #subir_file(namefile, directory)
-    get_files_in_directory(directory, recursive=True, print_tree=True)
+    subir_file(namefile, directory)
+    #get_files_in_directory(directory, recursive=True, print_tree=True)
     #detect_text()
     logging.debug("| END | {0} testing".format(__file__))
     pass

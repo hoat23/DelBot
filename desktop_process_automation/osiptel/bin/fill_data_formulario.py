@@ -144,12 +144,15 @@ def fill_data_formulario(data_json, list_sheets, driver):
             fill_data_one_doc(one_document, one_sheet, driver)
             agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='openLinkPicker()']")
             agregar_documentos[0].click()
-            if load_doc_principal_y_asociados(one_document, idx, one_sheet):
+            if load_doc_principal_y_asociados(one_document):
                 time.sleep(2)
-                load_page(filename="boton_guardarypublicar.png", set_click=True, sleep_time=2.3, intentos=20)
             cont = 0
             while cont < 100:
+                if load_page(filename="boton_guardarypublicar.png", set_click=True, sleep_time=2.3, intentos=20):
+                    pass
                 if load_page(filename="boton_back_to_new_resolucion.png", set_click=True, intentos=20,sleep_time=3.2):
+                    time.sleep(5)
+                    cont = cont + 1
                     break
             time.sleep(5)
             #input("Next---document ------------->")

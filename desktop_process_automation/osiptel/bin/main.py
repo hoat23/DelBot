@@ -6,10 +6,14 @@
 #########################################################################################
 import logging
 import sys
+import time
 from utils import *
 from login import *
 from datamanager import *
 from fill_data_formulario import *
+from logging_advance import *
+import pyautogui as gui
+gui.FAILSAFE = False
 
 if __name__ == "__main__":    
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
@@ -19,9 +23,8 @@ if __name__ == "__main__":
     url = "https://localhost:44347/umbraco/"#"http://44.231.13.118/umbraco/"
     user = "usuario@osiptel.com"
     pasw = "maQUEtaHTML567"
-    driver = load_url(url)
-    load_credentials(user,pasw)
-    
+    driver = login(url, user, pasw)
+
     ## loading excel
     filename = "Filtrado_1.xlsx"
     fullpath = "D:\\DPA\\files\\"+filename
@@ -37,7 +40,7 @@ if __name__ == "__main__":
     ]
     data_json = load_excel(fullpath, list_sheets, columns_rename=columns_rename)
     #print_json(data_json)
-
+    time.sleep(5)
     ## loading page formulario
     load_page_formulario(url,driver)
 

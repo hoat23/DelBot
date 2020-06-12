@@ -13,6 +13,9 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from utils import *
 from utils_vision import *
 from subir_file import *
+from logging_advance import *
+
+x = logging_advance(service=__file__, send_elk=False)
 
 def load_page_load_documento_principal(filename="win_doc_principal.png", directory="D:/DPA/img", pos_xy=None): #D://DPA//bin//
     """
@@ -72,6 +75,7 @@ def load_page_goto(path_media, intentos=3, directory="D:/DPA/img"):
 
 def load_documento_principal(doc_principal, directory_doc_principal):
     if load_page_seleccionar_medio():
+        # Existen 3 rutas posibles
         path_media = [
             "win_media.png",
             "win_media_repositorio_de_documentos.png",
@@ -79,6 +83,7 @@ def load_documento_principal(doc_principal, directory_doc_principal):
         
         if load_page_goto(path_media):
             if load_page(filename="boton_subir.png", set_click=True):
+                # Subiendo documento principal
                 subir_file(doc_principal, directory_doc_principal)
                 logging.info("load_documento_principal [{0}]".format(doc_principal))
                 cont = 0
@@ -95,7 +100,7 @@ def load_documento_principal(doc_principal, directory_doc_principal):
 def load_documento_asociado(doc_asociado):
     directory = "D:/scraping/book20/CD/1"
     namefile = "res00194CDOSIPTEL.pdf"
-    input("load_documento_asociado {0}".format(doc_asociado))
+    input("load_documento_asociado {0} pauseeeeeeeeeeeeeeeeeeeee".format(doc_asociado))
     #subir_file(namefile, directory)
     return True
 
@@ -118,24 +123,23 @@ def valida_path(path_directory_idx, one_document):
     for file in files_asociados:
         if file.find('.pdf'):
             doc_asociados.append(file)
-    print("-----------------------------------------------------------")
-    print_json(tree_files)
-    print_json(one_document)
-    print("-----------------------------------------------------------")
-    return doc_principal, doc_asociados
+    one_document.update({'doc_principal': doc_principal, 'doc_asociados': doc_asociados, 'tree_files': tree_files})
+    return one_document
 
-def load_doc_principal_y_asociados(one_document, idx, one_sheet, directory="D:/scraping/book20"):
+def load_doc_principal_y_asociados(one_document, directory="D:/scraping/book20"):
     logging.debug("load_doc_principal_y_asociados | {0}".format(one_document['enlace']))
-    if idx<1: idx=1
+    idx = one_document['idx']
+    one_sheet = one_document['sheet']
     sub_directory =  unicodedata.normalize( 'NFD', one_document['or'] )
-    path_directory_idx = "{0}/{1}/{2}".format(directory, sub_directory, idx)
-    doc_principal,  doc_asociados = valida_path(path_directory_idx, one_document)#queda pendiente validar one_document
-
+    path_directory_princ = "{0}/{1}/{2}".format(directory, sub_directory, idx+1)
+    one_document = valida_path(path_directory_princ, one_document)#queda pendiente validar one_document dentro de valida path
+    x.print_debug("one_document", data_json=one_document, name_function="load_doc_principal_y_asociados", send_elk=False)
+    
     intentos_load_page = 3
     for n_intento in range(0,intentos_load_page):
-        if load_page_load_documento_principal() and len(doc_principal)>0:
-            load_documento_principal(doc_principal, path_directory_idx)
-            for one_doc_asociado in doc_asociados:
+        if load_page_load_documento_principal() and len(one_document['doc_principal'])>0:
+            load_documento_principal(one_document['doc_principal'], path_directory_princ)
+            for one_doc_asociado in one_document['doc_asociados']:
                 load_documento_asociado(one_doc_asociado)
             #load_page(filename="boton_guardarypublicar.png", set_click=True, sleep_time=2.3, intentos=20)
             return True
