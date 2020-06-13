@@ -12,6 +12,8 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from utils import *
 from logging_advance import *
 
+log = logging_advance(_index="debug-python", service='login.py', send_elk=True)
+
 def build_driver_web(path_driver="D:\scraping\chromedriver.exe"):
     options = webdriver.ChromeOptions() 
     options.add_argument("--start-maximized")
@@ -28,7 +30,7 @@ def load_url(url, driver=build_driver_web()):
         "session_id": driver.session_id
     }
     save_yml(driver_json,nameFile="driver_web.yml")
-    logging.info("session_id: {0} | url : {1}".format(driver_json['session_id'],driver_json['executor_url']))
+    log.print_info("session_id: {0} | url : {1}".format(driver_json['session_id'],driver_json['executor_url']), data_json=driver_json, name_function="load_url")
     return driver
 
 def input_string(string):
@@ -52,13 +54,12 @@ def login(url, user, pasw):
     return driver
 
 if __name__ == "__main__":
-    x = logging_advance(service=__file__, send_elk=False)
-    x.print_debug("", data_json={}, name_function="__main__", send_elk=False)
+    log.print_debug("INI", data_json={}, name_function="loging.py", send_elk=False)
     url = "https://localhost:44347/umbraco/"
     user = "usuario@osiptel.com"
     pasw = "maQUEtaHTML567"
     login(url, user, pasw)
     while(True):
         pass
-    x.print_debug("", data_json={}, name_function="__main__")
+    log.print_debug("FIN", data_json={}, name_function="loging.py")
     pass

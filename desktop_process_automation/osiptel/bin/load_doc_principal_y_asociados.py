@@ -15,6 +15,8 @@ from utils import *
 from utils_vision import *
 from subir_file import *
 from logging_advance import *
+#######################################################################################
+log = logging_advance(_index="debug-python", service='fill_data_formulario.py', send_elk=True)
 
 x = logging_advance(service=__file__, send_elk=False)
 
@@ -90,7 +92,7 @@ def load_documento_principal(doc_principal, directory_doc_principal, driver):
         if load_page(filename="boton_subir.png", set_click=True):
             # Subiendo documento principal
             subir_file(doc_principal, directory_doc_principal)
-            logging.info("load_documento_principal [{0}]".format(doc_principal))
+            log.print_error("documento principal subido", name_function=__name__)
             # ng-click="vm.clickButton($event)"
             
             cont=0
@@ -99,15 +101,16 @@ def load_documento_principal(doc_principal, directory_doc_principal, driver):
 
                 if load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=5):
                     time.sleep(1)
+                    log.print_info("return True", name_function=__name__)
                     return True
                 
                 if load_page(filename="boton_seleccionar.png", set_click=True, sleep_time=2, intentos=5):
                     time.sleep(1)
                     pass
                 cont = cont + 1
-            
+            log.print_info("return False", name_function=__name__)
             return False
-            
+    log.print_info("return False", name_function=__name__)
     return False
 
 def load_documento_asociado(doc_asociado_json,driver):
@@ -128,7 +131,7 @@ def load_documento_asociado(doc_asociado_json,driver):
         if load_page(filename="boton_subir.png", set_click=True):
             # Subiendo documento principal
             subir_file(doc_asociado, directory_doc)
-            logging.info("load_documento_asociado [{0}]".format(doc_asociado))
+            log.print_info("documento asociado [{0}]".format(doc_asociado), name_function=__name__)
             # ng-click="vm.clickButton($event)"
             
             cont=0
@@ -137,14 +140,17 @@ def load_documento_asociado(doc_asociado_json,driver):
                 if load_page(filename="boton_aceptar.png", set_click=False, sleep_time=1, intentos=5):
                     driver.find_elements_by_xpath("//input[@placeholder='Escribe un nombre...']")[2].send_keys('\b\b'*len(rename_doc)+rename_doc)
                     load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=3)
+                    log.print_info("return True", name_function=__name__)
                     return True
                 
                 if load_page(filename="boton_seleccionar.png", set_click=True, sleep_time=2, intentos=5):
                     time.sleep(1)
+                    log.print_debug("boton_seleccionar", name_function=__name__)
                     pass
                 cont = cont + 1
-            
+            log.print_info("return False", name_function=__name__)
             return False
+    log.print_info("return False", name_function=__name__)
     return False
 
 def get_name_doc_asociado(filename, path_dir):
@@ -156,10 +162,10 @@ def get_name_doc_asociado(filename, path_dir):
         with open(filepath) as fp:
             name = fp.readline()
     except:
-        logging.error("get_name_doc_asociado | {0}".format(filename))
+        log.print_error("filepath=[{0}]".format(filename), name_function=__name__)
     finally:
         fp.close()
-    
+    log.print_debug("return [{0}]".format(name), name_function=__name__)
     return name
 
 def valida_path(path_directory_idx, one_document):
@@ -189,14 +195,13 @@ def valida_path(path_directory_idx, one_document):
     return one_document
 
 def load_doc_principal_y_asociados(one_document, driver, directory="D:/scraping/book20"):
-    logging.debug("load_doc_principal_y_asociados | {0}".format(one_document['enlace']))
+    log.print_info("enlace={0}".format(one_document['enlace']), name_function=__name__)
     idx = one_document['idx']
     one_sheet = one_document['sheet']
     sub_directory =  unicodedata.normalize( 'NFD', one_document['or'] )
     path_directory_princ = "{0}/{1}/{2}".format(directory, sub_directory, idx+1)
     one_document = valida_path(path_directory_princ, one_document)#queda pendiente validar one_document dentro de valida path
-    x.print_debug("one_document", data_json=one_document, name_function="load_doc_principal_y_asociados", send_elk=False)
-
+    log.print_debug("one_document", data_json=one_document, name_function=__name__)
 
     agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='openLinkPicker()']")
     flagDocPric = False
@@ -205,6 +210,7 @@ def load_doc_principal_y_asociados(one_document, driver, directory="D:/scraping/
         agregar_documentos[0].click()
         flagDocPric=load_documento_principal(one_document['doc_principal'], path_directory_princ, driver)
     
+    
     for one_doc_asociado in one_document['doc_asociados']:
         # click en (anadir) para cargar documento asociado
         agregar_documentos[1].click()
@@ -212,6 +218,8 @@ def load_doc_principal_y_asociados(one_document, driver, directory="D:/scraping/
     #load_page(filename="boton_guardarypublicar.png", set_click=True, sleep_time=2.3, intentos=20)
     if not flagDocPric:
         save_yml(one_document, nameFile="documents_error.yml", type_open="a")
+        log.print_error("one_document", data_json=one_document, name_function=__name__)
+    log.print_info("return {0}".format(flagDocPric), name_function=__name__)
     return flagDocPric
 
 if __name__ == "__main__":

@@ -13,6 +13,9 @@ import pyperclip as pyc #pip install pyperclip
 import html
 from load_doc_principal_y_asociados import *
 from utils_vision import *
+from logging_advance import *
+#######################################################################################
+log = logging_advance(_index="debug-python", service='fill_data_formulario.py', send_elk=True)
 #######################################################################################
 ## Normalizar cadenas de caracteres
 def normalize(s):
@@ -27,41 +30,36 @@ def normalize(s):
         s = s.replace(a, b).replace(a.upper(), b.upper()).replace('\n', ' ').replace('\r', '')
     return s
 
-def valida_load_page_formulario():
-    return True
-
 def load_page_formulario(url,driver):
     #selenium chrome driver with extensions
-    logging.debug("load_page_formulario")
+    log.print_info("INI | url={0}".format(url), name_function=__name__)
     time.sleep(2)
     url_formulario = "{0}#/content/content/edit/1200".format(url)
     driver.get(url_formulario)
-    """
-    driver.find_element_by_xpath("//a[@ng-href='#/content/content/edit/1200']").click()
-    driver.find_element_by_xpath("//button[@ng-click='createBlank(entityType,listViewAllowedTypes[0].alias)']").click()
-    """
     time.sleep(2)
     return driver
 
 def load_page_crearresolucion(filename="boton_crearresolucion.png", directory="D:/DPA/img", pos_xy=None): #D://DPA//bin//
     #logging.debug("load_page_crearresolucion | {0}".format(filename))
+    log.print_info("boton".format(filename), name_function=__name__)
     fullpath = "{0}/{1}".format(directory, filename)
     cont = 0
     while ((pos_xy==None) and (cont < 20)):
         time.sleep(3.2)
         pos_xy = gui.locateOnScreen(fullpath, confidence=0.8, grayscale=True)
-        logging.debug("search_buton  | {0} | {1}".format(filename, pos_xy))
+        log.print_info("search_buton {1} [{0}] |".format(filename,pos_xy), name_function=__name__)
         cont = cont + 1
     
     try:
-        logging.debug("buton_found     | {0} | {1}".format(filename, pos_xy))
         pos_xy = gui.center(pos_xy)
-        logging.info("click_on_button  | {0} | {1}".format(filename, pos_xy))
+        log.print_info("click_on_buton {1} [{0}]".format(filename,pos_xy), name_function=__name__)
         gui.click(pos_xy)
         time.sleep(1)
+        log.print_info("return True", name_function=__name__)
         return True
     except:
-        logging.error("buton_not_found  | {0}".format(filename))
+        log.print_error("buton_not_found [{0}]".format(filename))
+        log.print_info("return False", name_function=__name__)
         return False
 
 def valida_fill_data_formulario():
@@ -100,7 +98,7 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
     submateria = unicodedata.normalize('NFD', data_json['submateria']).upper()
     organo_res = unicodedata.normalize('NFD', data_json['or'] )
 
-    logging.debug("{0}".format(description))
+    log.print_debug("{0}".format(numero_res), name_function=__name__)
     driver.implicitly_wait(10)
     # Ingreso de información correspondiente
     driver.find_element_by_id("headerName").send_keys()
@@ -135,25 +133,24 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
     return valida_fill_data_formulario()
 
 def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0, 'idx_doc': 0}):
-    
-    logging.info("fill_data_formulario |  url = {0}".format( driver.current_url ) )
+    log.print_info("driver.current_url = [{0}]".format(driver.current_url), name_function=__name__)
     idx_sheet = 0  + retomar['idx_sheet']
     while idx_sheet < len(list_sheets): # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
         one_sheet = list_sheets[idx_sheet]
         key = one_sheet.lower().replace(" ","")
         bucket_documents = data_json[key] # diccionario de documentos por cada tipo
-        logging.info("fill_data_formulario | {0:04d} | {1}".format(len(bucket_documents), key))
+        log.print_debug("one_sheet=[{0}] | {1}".format(one_sheet, len(bucket_documents)), name_function=__name__)
         idx = 0 + retomar['idx_doc']
         while idx < len(bucket_documents):
             one_document = bucket_documents[idx]
             #new formulario
             while not load_page_crearresolucion():
-                print("loading new page [crearresolucion]")
+                log.print_debug("loading new page [crearresolucion]", name_function=__name__)
                 time.sleep(2)
                 pass
             
             #load page 
-            logging.info("fill_data_formulario | reaload page idx={0}".format(idx))
+            log.print_info("reaload page idx={0}".format(idx), name_function=__name__)
             one_document.update({'idx':idx, 'sheet': one_sheet})
             fill_data_one_doc(one_document, one_sheet, driver)
             
@@ -170,10 +167,10 @@ def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0
                     time.sleep(5)
                     cont = cont + 1
                     break
-            
+            log.print_debug("next document", name_function=__name__)
             time.sleep(5)
-            #input("Next---document ------------->")
             idx = idx + 1
+    log.print_info("return drive", name_function=__name__)
     return drive
 #######################################################################################
 if __name__ == "__main__":
