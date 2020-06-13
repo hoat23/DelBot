@@ -24,7 +24,7 @@ if __name__ == "__main__":
     
     retomar={'idx_sheet': idx_sheet, 'idx_doc': idx_doc}
     ## open browser and login
-    url = "https://localhost:44347/umbraco/"#"http://44.231.13.118/umbraco/"
+    url = "https://localhost:44347/umbraco/"
     user = "usuario@osiptel.com"
     pasw = "maQUEtaHTML567"
 
