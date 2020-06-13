@@ -395,8 +395,8 @@ def send_json(msg, IP="0.0.0.0", PORT = 2233, dictionary={}, emulate=False):
             pass
         return
 #######################################################################################
-def save_yml(data_json, nameFile="data.yml"):
-    with open(nameFile, "w") as yaml_file:
+def save_yml(data_json, nameFile="data.yml", type_open="w"):
+    with open(nameFile, type_open) as yaml_file:
         yaml.dump(data_json, yaml_file, default_flow_style=False)
     return
 #######################################################################################

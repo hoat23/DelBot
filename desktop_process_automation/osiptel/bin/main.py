@@ -13,14 +13,14 @@ from datamanager import *
 from fill_data_formulario import *
 from logging_advance import *
 import pyautogui as gui
-gui.FAILSAFE = False
+gui.FAILSAFE = True
 
 if __name__ == "__main__":    
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
     logging.debug("| INI | {0} testing".format(__file__))
     #sys.setdefaultencoding( "utf-8" )
     idx_sheet = 0#int( input('retomar sheet:') ) # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
-    idx_doc = 620#int( input('retomar docum:') )
+    idx_doc = 619#int( input('retomar docum:') )
     
     retomar={'idx_sheet': idx_sheet, 'idx_doc': idx_doc}
     ## open browser and login

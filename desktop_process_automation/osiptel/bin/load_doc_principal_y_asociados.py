@@ -38,7 +38,7 @@ def load_page_goto(path_media, intentos=3, directory="D:/DPA/img"):
 
     for intento in range(0,intentos):
         if load_page(filename=path_media[-1], directory=directory, sleep_time=1, set_click=True, intentos=2):
-            logging.info("load_page_goto | Its ok. [{0}]".format(filename))
+            logging.info("load_page_goto | Its ok. [{0}]".format(path_media[-1]))
             return True
 
         #Where i am
@@ -117,8 +117,8 @@ def load_documento_asociado(doc_asociado_json,driver):
 
     agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='switchToMediaPicker()']")
     agregar_documentos[0].click() #click boton [Selecciona medio]
-
     driver.execute_script("document.getElementsByTagName('input')[13].value='"+rename_doc+"'")
+    
     path_media = [
         "win_media.png",
         "win_media_repositorio_de_documentos.png",
@@ -134,9 +134,9 @@ def load_documento_asociado(doc_asociado_json,driver):
             cont=0
             while cont<100:
                 time.sleep(1)
-
-                if load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=5):
-                    time.sleep(1)
+                if load_page(filename="boton_aceptar.png", set_click=False, sleep_time=1, intentos=5):
+                    driver.find_elements_by_xpath("//input[@placeholder='Escribe un nombre...']")[2].send_keys('\b\b'*len(rename_doc)+rename_doc)
+                    load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=3)
                     return True
                 
                 if load_page(filename="boton_seleccionar.png", set_click=True, sleep_time=2, intentos=5):
@@ -152,20 +152,20 @@ def get_name_doc_asociado(filename, path_dir):
     name = ""
     with open(filepath) as fp:
             name = fp.readline()
-    """try:
+    try:
         with open(filepath) as fp:
             name = fp.readline()
     except:
         logging.error("get_name_doc_asociado | {0}".format(filename))
-    finally:"""
-    fp.close()
+    finally:
+        fp.close()
     
     return name
 
 def valida_path(path_directory_idx, one_document):
     #subir_file(namefile, directory)
-    tree_files = get_files_in_directory(path_directory_idx, recursive=True, print_tree=True)
-    print_json(tree_files)
+    tree_files = get_files_in_directory(path_directory_idx, recursive=True, print_tree=False)
+    #print_json(tree_files)
     if 'files' in tree_files:
         files_principal = tree_files['files']
 
@@ -199,17 +199,20 @@ def load_doc_principal_y_asociados(one_document, driver, directory="D:/scraping/
 
 
     agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='openLinkPicker()']")
+    flagDocPric = False
     if len(one_document['doc_principal'])>0:
         # click en (anadir) para cargar nuevo documento principal
         agregar_documentos[0].click()
-        load_documento_principal(one_document['doc_principal'], path_directory_princ, driver)
+        flagDocPric=load_documento_principal(one_document['doc_principal'], path_directory_princ, driver)
     
     for one_doc_asociado in one_document['doc_asociados']:
         # click en (anadir) para cargar documento asociado
         agregar_documentos[1].click()
         load_documento_asociado(one_doc_asociado, driver)
     #load_page(filename="boton_guardarypublicar.png", set_click=True, sleep_time=2.3, intentos=20)
-    return False
+    if not flagDocPric:
+        save_yml(one_document, nameFile="documents_error.yml", type_open="a")
+    return flagDocPric
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
