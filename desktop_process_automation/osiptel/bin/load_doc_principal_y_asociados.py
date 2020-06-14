@@ -16,7 +16,7 @@ from utils_vision import *
 from subir_file import *
 from logging_advance import *
 #######################################################################################
-log = logging_advance(_index="debug-python", service='fill_data_formulario.py', send_elk=True)
+log = logging_advance(_index="debug-python", service='load_doc_principalyasociados.py', send_elk=True)
 
 x = logging_advance(service=__file__, send_elk=False)
 
@@ -100,12 +100,13 @@ def load_documento_principal(doc_principal, directory_doc_principal, driver):
                 time.sleep(1)
 
                 if load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=5):
-                    time.sleep(1)
+                    time.sleep(2)
                     log.print_info("return True", name_function=__name__)
                     return True
                 
                 if load_page(filename="boton_seleccionar.png", set_click=True, sleep_time=2, intentos=5):
-                    time.sleep(1)
+                    log.print_info("while boton_seleccionar", name_function=__name__)
+                    time.sleep(2)
                     pass
                 cont = cont + 1
             log.print_info("return False", name_function=__name__)
@@ -113,9 +114,21 @@ def load_documento_principal(doc_principal, directory_doc_principal, driver):
     log.print_info("return False", name_function=__name__)
     return False
 
+def normalize(s):
+    replacements = (
+        ("á", "a"),
+        ("é", "e"),
+        ("í", "i"),
+        ("ó", "o"),
+        ("ú", "u"),
+    )
+    for a, b in replacements:
+        s = s.replace(a, b).replace(a.upper(), b.upper()).replace('\n', ' ').replace('\r', '')
+    return s
+
 def load_documento_asociado(doc_asociado_json,driver):
     doc_asociado = doc_asociado_json["doc_asociado"]
-    rename_doc = doc_asociado_json["rename"]
+    rename_doc = normalize( doc_asociado_json["rename"] )
     directory_doc = doc_asociado_json["directory"]
 
     agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='switchToMediaPicker()']")
@@ -196,13 +209,7 @@ def valida_path(path_directory_idx, one_document):
 
 def load_doc_principal_y_asociados(one_document, driver, directory="D:/scraping/book20"):
     log.print_info("enlace={0}".format(one_document['enlace']), name_function=__name__)
-    idx = one_document['idx']
-    one_sheet = one_document['sheet']
-    sub_directory =  unicodedata.normalize( 'NFD', one_document['or'] )
-    path_directory_princ = "{0}/{1}/{2}".format(directory, sub_directory, idx+1)
-    one_document = valida_path(path_directory_princ, one_document)#queda pendiente validar one_document dentro de valida path
-    log.print_debug("one_document", data_json=one_document, name_function=__name__)
-
+    path_directory_princ = one_document['tree_files']['path']
     agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='openLinkPicker()']")
     flagDocPric = False
     if len(one_document['doc_principal'])>0:

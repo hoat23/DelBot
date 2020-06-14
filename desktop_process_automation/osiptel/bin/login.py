@@ -29,7 +29,7 @@ def load_url(url, driver=build_driver_web()):
         "executor_url": driver.command_executor._url,
         "session_id": driver.session_id
     }
-    save_yml(driver_json,nameFile="driver_web.yml")
+    #save_yml(driver_json,nameFile="driver_web.yml")
     log.print_info("session_id: {0} | url : {1}".format(driver_json['session_id'],driver_json['executor_url']), data_json=driver_json, name_function="load_url")
     return driver
 

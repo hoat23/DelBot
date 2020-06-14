@@ -90,7 +90,7 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
     }
     """
     #.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
-    numero_res = unicodedata.normalize('NFD', data_json['resolucion'] )
+    numero_res = normalize( unicodedata.normalize('NFD', data_json['resolucion'] ) )
     anio = data_json['anio']
     description = normalize(unicodedata.normalize('NFD', data_json['tema'] ) )
     link_pagina = unicodedata.normalize('NFD', data_json['enlace'] )
@@ -132,7 +132,7 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
 
     return valida_fill_data_formulario()
 
-def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0, 'idx_doc': 0}):
+def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0, 'idx_doc': 0},directory="D:/scraping/book20"):
     log.print_info("driver.current_url = [{0}]".format(driver.current_url), name_function=__name__)
     idx_sheet = 0  + retomar['idx_sheet']
     while idx_sheet < len(list_sheets): # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
@@ -143,32 +143,40 @@ def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0
         idx = 0 + retomar['idx_doc']
         while idx < len(bucket_documents):
             one_document = bucket_documents[idx]
-            #new formulario
-            while not load_page_crearresolucion():
-                log.print_debug("loading new page [crearresolucion]", name_function=__name__)
-                time.sleep(2)
-                pass
-            
-            #load page 
-            log.print_info("reaload page idx={0}".format(idx), name_function=__name__)
             one_document.update({'idx':idx, 'sheet': one_sheet})
-            fill_data_one_doc(one_document, one_sheet, driver)
-            
-            if load_doc_principal_y_asociados(one_document,driver):
-                time.sleep(2)
-            
-            #Guardar la resolución
-            driver.implicitly_wait(10)
-            btn_guardar = driver.find_elements_by_xpath("//*[@ng-click='vm.clickButton($event)']")
-            btn_guardar[2].click()
-            cont=0
-            while cont < 100:
-                if load_page(filename="boton_back_to_new_resolucion.png", set_click=True, intentos=20,sleep_time=3.2):
-                    time.sleep(5)
-                    cont = cont + 1
-                    break
-            log.print_debug("next document", name_function=__name__)
-            time.sleep(5)
+            sub_directory =  unicodedata.normalize( 'NFD', one_document['or'] )
+            path_directory_princ = "{0}/{1}/{2}".format(directory, sub_directory, idx+1)
+            one_document = valida_path(path_directory_princ, one_document)#queda pendiente validar one_document dentro de valida path
+            log.print_debug("one_document", data_json=one_document, name_function=__name__)
+            if len(one_document['doc_principal'])>0:
+                #new formulario
+                while not load_page_crearresolucion():
+                    log.print_debug("loading new page [crearresolucion]", name_function=__name__)
+                    time.sleep(2)
+                    pass
+                
+                #load page 
+                log.print_info("reaload page idx={0}".format(idx), name_function=__name__)
+                fill_data_one_doc(one_document, one_sheet, driver)
+                
+                if load_doc_principal_y_asociados(one_document,driver):
+                    time.sleep(3)
+                
+                #Guardar la resolución
+                log.print_debug("click guardar resolucion ", name_function=__name__)
+                driver.implicitly_wait(10)
+                btn_guardar = driver.find_elements_by_xpath("//*[@ng-click='vm.clickButton($event)']")
+                btn_guardar[2].click()
+                time.sleep(5)
+                try:
+                    log.print_debug("click boton_back_to_new_resolucion", name_function=__name__)
+                    driver.implicitly_wait(10)
+                    #driver.findElement(By.xpath("//*[@ng-click='goBack()']")).click();
+                    btn_back = driver.find_elements_by_xpath("//*[@ng-click='goBack()']")
+                    btn_back[0].click()
+                finally:
+                    log.print_debug("next document", name_function=__name__)
+                time.sleep(5)
             idx = idx + 1
     log.print_info("return drive", name_function=__name__)
     return drive

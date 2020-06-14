@@ -16,12 +16,12 @@ import pyautogui as gui
 gui.FAILSAFE = True
 
 if __name__ == "__main__":    
-    #logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
+    #logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.mBUG)
     log = logging_advance(_index="debug-python", service='', send_elk=True)
     log.print_debug("INI |", data_json={}, name_function="__main__")
     #sys.setdefaultencoding( "utf-8" )
     idx_sheet = 0#int( input('retomar sheet:') ) # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
-    idx_doc = 0#int( input('retomar docum:') )
+    idx_doc = 69 #14#int( input('retomar docum:') )
     
     retomar={'idx_sheet': idx_sheet, 'idx_doc': idx_doc}
     ## open browser and login
