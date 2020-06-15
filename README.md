@@ -2,6 +2,6 @@
 Robot Process Automation
 
 
-# Loading data to web (RPA)
+# Down/Up loading data (DPA)
 
-Loading data to web (Proyecto Osiptel) 
+Downloading/Loading data to web (Proyecto Osiptel) 
