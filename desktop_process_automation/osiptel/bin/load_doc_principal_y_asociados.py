@@ -40,7 +40,7 @@ def load_page_goto(path_media, intentos=3, directory="D:/DPA/img"):
 
     for intento in range(0,intentos):
         if load_page(filename=path_media[-1], directory=directory, sleep_time=1, set_click=True, intentos=2):
-            logging.info("load_page_goto | Its ok. [{0}]".format(path_media[-1]))
+            log.print_debug("Its ok. [{0}]".format(path_media[-1]), name_function="load_page_goto"))
             return True
 
         #Where i am
@@ -50,7 +50,7 @@ def load_page_goto(path_media, intentos=3, directory="D:/DPA/img"):
             gui.scroll(1000)# el directorio se indica en la parte superior de la ventana
             if load_page(filename=filename, directory=directory, sleep_time=1, set_click=True, intentos=2):
                 iam_idx = lvl
-                logging.info("load_page_goto | lvl={0}:{2} | {1}".format(iam_idx, filename, lvl))
+                log.print_debug("lvl={0}:{2} | {1}".format(iam_idx, filename, lvl))
                 break
             lvl = lvl + 1
         
@@ -74,6 +74,7 @@ def load_page_goto(path_media, intentos=3, directory="D:/DPA/img"):
                     gui.scroll(-100)
                     if load_page(filename="boton_buscador_de_normas_y.png", sleep_time=1, set_click=True, intentos=2):#valida que la pagina ya cargo
                         break
+    log.print_error("don't found path. [{0}]".format(path_media[-1]), name_function="load_page_goto"))
     return False
 
 def load_documento_principal(doc_principal, directory_doc_principal, driver):
@@ -92,7 +93,7 @@ def load_documento_principal(doc_principal, directory_doc_principal, driver):
         if load_page(filename="boton_subir.png", set_click=True):
             # Subiendo documento principal
             subir_file(doc_principal, directory_doc_principal)
-            log.print_error("documento principal subido", name_function=__name__)
+            log.print_info("documento principal subido [{0}]".format(doc_principal), name_function="load_documento_principal")
             # ng-click="vm.clickButton($event)"
             
             cont=0
@@ -101,21 +102,21 @@ def load_documento_principal(doc_principal, directory_doc_principal, driver):
 
                 if load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=5):
                     time.sleep(2)
-                    log.print_info("return True", name_function=__name__)
+                    log.print_debug("return True", name_function="load_documento_principal")
                     return True
                 
                 if load_page(filename="boton_seleccionar.png", set_click=True, sleep_time=2, intentos=5):
-                    log.print_info("while boton_seleccionar", name_function=__name__)
+                    log.print_debug("while boton_seleccionar", name_function="load_documento_principal")
                     time.sleep(2)
                     pass
                 cont = cont + 1
-            log.print_info("return False", name_function=__name__)
+            log.print_debug("return False", name_function="load_documento_principal")
             return False
-    log.print_info("return False", name_function=__name__)
+    log.print_debug("return False", name_function="load_documento_principal")
     return False
 
 def normalize(s):
-    replacements = (
+    """replacements = (
         ("á", "a"),
         ("é", "e"),
         ("í", "i"),
@@ -124,6 +125,8 @@ def normalize(s):
     )
     for a, b in replacements:
         s = s.replace(a, b).replace(a.upper(), b.upper()).replace('\n', ' ').replace('\r', '')
+    """
+    s = s.replace('\n', ' ').replace('\r', '')
     return s
 
 def load_documento_asociado(doc_asociado_json,driver):
@@ -151,19 +154,19 @@ def load_documento_asociado(doc_asociado_json,driver):
             while cont<100:
                 time.sleep(1)
                 if load_page(filename="boton_aceptar.png", set_click=False, sleep_time=1, intentos=5):
-                    driver.find_elements_by_xpath("//input[@placeholder='Escribe un nombre...']")[2].send_keys('\b\b'*len(rename_doc)+rename_doc)
+                    driver.find_elements_by_xpath("//input[@placeholder='Escribe un nombre...']")[2].send_keys('\b\b\b'*len(rename_doc)+rename_doc)
                     load_page(filename="boton_aceptar.png", set_click=True, sleep_time=2, intentos=3)
-                    log.print_info("return True", name_function=__name__)
+                    log.print_debug("return True", name_function="load_documento_asociado")
                     return True
                 
                 if load_page(filename="boton_seleccionar.png", set_click=True, sleep_time=2, intentos=5):
                     time.sleep(1)
-                    log.print_debug("boton_seleccionar", name_function=__name__)
+                    log.print_debug("boton_seleccionar", name_function="load_documento_asociado")
                     pass
                 cont = cont + 1
-            log.print_info("return False", name_function=__name__)
+            log.print_error("return False", name_function="load_documento_asociado")
             return False
-    log.print_info("return False", name_function=__name__)
+    log.print_error("return False", name_function="load_documento_asociado")
     return False
 
 def get_name_doc_asociado(filename, path_dir):
@@ -175,10 +178,10 @@ def get_name_doc_asociado(filename, path_dir):
         with open(filepath) as fp:
             name = fp.readline()
     except:
-        log.print_error("filepath=[{0}]".format(filename), name_function=__name__)
+        log.print_error("filepath=[{0}]".format(filename), name_function="load_documento_asociado")
     finally:
         fp.close()
-    log.print_debug("return [{0}]".format(name), name_function=__name__)
+    log.print_debug("return [{0}]".format(name), name_function="load_documento_asociado")
     return name
 
 def valida_path(path_directory_idx, one_document):
@@ -225,8 +228,8 @@ def load_doc_principal_y_asociados(one_document, driver, directory="D:/scraping/
     #load_page(filename="boton_guardarypublicar.png", set_click=True, sleep_time=2.3, intentos=20)
     if not flagDocPric:
         save_yml(one_document, nameFile="documents_error.yml", type_open="a")
-        log.print_error("one_document", data_json=one_document, name_function=__name__)
-    log.print_info("return {0}".format(flagDocPric), name_function=__name__)
+        log.print_error("one_document", data_json=one_document, name_function="load_doc_principal_y_asociados")
+    log.print_info("return {0}".format(flagDocPric), name_function="load_doc_principal_y_asociados")
     return flagDocPric
 
 if __name__ == "__main__":

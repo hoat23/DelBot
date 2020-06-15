@@ -65,7 +65,7 @@ class logging_advance(object):
             "service": service,
             "hostname": socket.gethostname()
         }
-        if len(data_json)>0: debug_json.update( {"data_aditional": [data_json]} )
+        if len(data_json)>0: debug_json.update( {"data_aditional": data_json } )
         if len(name_function)>0: 
             debug_json.update( {"name_function": name_function} )
             str_log = "{0}|{1:5s}|{2}|{3}".format( timestamp, tipo_log, name_function, description )

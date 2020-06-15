@@ -41,25 +41,25 @@ def load_page_formulario(url,driver):
 
 def load_page_crearresolucion(filename="boton_crearresolucion.png", directory="D:/DPA/img", pos_xy=None): #D://DPA//bin//
     #logging.debug("load_page_crearresolucion | {0}".format(filename))
-    log.print_info("boton".format(filename), name_function=__name__)
+    log.print_info("boton".format(filename), name_function="load_page_crearresolucion")
     fullpath = "{0}/{1}".format(directory, filename)
     cont = 0
     while ((pos_xy==None) and (cont < 20)):
         time.sleep(3.2)
         pos_xy = gui.locateOnScreen(fullpath, confidence=0.8, grayscale=True)
-        log.print_info("search_buton {1} [{0}] |".format(filename,pos_xy), name_function=__name__)
+        log.print_info("search_buton {1} [{0}] |".format(filename,pos_xy), name_function="load_page_crearresolucion")
         cont = cont + 1
     
     try:
         pos_xy = gui.center(pos_xy)
-        log.print_info("click_on_buton {1} [{0}]".format(filename,pos_xy), name_function=__name__)
+        log.print_info("click_on_buton {1} [{0}]".format(filename,pos_xy), name_function="load_page_crearresolucion")
         gui.click(pos_xy)
         time.sleep(1)
-        log.print_info("return True", name_function=__name__)
+        log.print_info("return True", name_function="load_page_crearresolucion")
         return True
     except:
         log.print_error("buton_not_found [{0}]".format(filename))
-        log.print_info("return False", name_function=__name__)
+        log.print_info("return False", name_function="load_page_crearresolucion")
         return False
 
 def valida_fill_data_formulario():
@@ -133,13 +133,13 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
     return valida_fill_data_formulario()
 
 def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0, 'idx_doc': 0},directory="D:/scraping/book20"):
-    log.print_info("driver.current_url = [{0}]".format(driver.current_url), name_function=__name__)
+    log.print_info("driver.current_url = [{0}]".format(driver.current_url), name_function="fill_data_formulario")
     idx_sheet = 0  + retomar['idx_sheet']
     while idx_sheet < len(list_sheets): # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
         one_sheet = list_sheets[idx_sheet]
         key = one_sheet.lower().replace(" ","")
         bucket_documents = data_json[key] # diccionario de documentos por cada tipo
-        log.print_debug("one_sheet=[{0}] | {1}".format(one_sheet, len(bucket_documents)), name_function=__name__)
+        log.print_debug("one_sheet=[{0}] | {1}".format(one_sheet, len(bucket_documents)), name_function="fill_data_formulario")
         idx = 0 + retomar['idx_doc']
         while idx < len(bucket_documents):
             one_document = bucket_documents[idx]
@@ -147,38 +147,37 @@ def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0
             sub_directory =  unicodedata.normalize( 'NFD', one_document['or'] )
             path_directory_princ = "{0}/{1}/{2}".format(directory, sub_directory, idx+1)
             one_document = valida_path(path_directory_princ, one_document)#queda pendiente validar one_document dentro de valida path
-            log.print_debug("one_document", data_json=one_document, name_function=__name__)
+            log.print_debug("one_document", data_json=one_document, name_function="fill_data_formulario")
             if len(one_document['doc_principal'])>0:
                 #new formulario
                 while not load_page_crearresolucion():
-                    log.print_debug("loading new page [crearresolucion]", name_function=__name__)
+                    log.print_debug("loading new page [crearresolucion]", name_function="fill_data_formulario")
                     time.sleep(2)
                     pass
                 
                 #load page 
-                log.print_info("reaload page idx={0}".format(idx), name_function=__name__)
+                log.print_info("reload page idx={0}".format(idx), name_function="fill_data_formulario")
                 fill_data_one_doc(one_document, one_sheet, driver)
                 
                 if load_doc_principal_y_asociados(one_document,driver):
                     time.sleep(3)
-                
+                else:
+                    log.print_error("don't load doc principal y asociados", name_fuction="fill_data_formulario")
                 #Guardar la resolución
-                log.print_debug("click guardar resolucion ", name_function=__name__)
+                log.print_debug("click guardar resolucion ", name_function="fill_data_formulario")
                 driver.implicitly_wait(10)
                 btn_guardar = driver.find_elements_by_xpath("//*[@ng-click='vm.clickButton($event)']")
                 btn_guardar[2].click()
                 time.sleep(5)
-                try:
-                    log.print_debug("click boton_back_to_new_resolucion", name_function=__name__)
-                    driver.implicitly_wait(10)
-                    #driver.findElement(By.xpath("//*[@ng-click='goBack()']")).click();
-                    btn_back = driver.find_elements_by_xpath("//*[@ng-click='goBack()']")
-                    btn_back[0].click()
-                finally:
-                    log.print_debug("next document", name_function=__name__)
+                log.print_debug("click boton_back_to_new_resolucion", name_function="fill_data_formulario")
+                driver.implicitly_wait(10)
+                #driver.findElement(By.xpath("//*[@ng-click='goBack()']")).click();
+                btn_back = driver.find_elements_by_xpath("//*[@ng-click='goBack()']")
+                btn_back[0].click()
+                log.print_debug("next document", name_function="fill_data_formulario")
                 time.sleep(5)
             idx = idx + 1
-    log.print_info("return drive", name_function=__name__)
+    log.print_info("return drive", name_function="fill_data_formulario")
     return drive
 #######################################################################################
 if __name__ == "__main__":
