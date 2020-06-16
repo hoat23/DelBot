@@ -21,7 +21,7 @@ if __name__ == "__main__":
     log.print_debug("INI |", data_json={}, name_function="__main__")
     #sys.setdefaultencoding( "utf-8" )
     idx_sheet = 0#int( input('retomar sheet:') ) # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
-    idx_doc = 700 #870#868#828#696#516#424#366 #69 #14#int( input('retomar docum:') )
+    idx_doc = 0 #870#868#828#696#516#424#366 #69 #14#int( input('retomar docum:') )
     
     retomar={'idx_sheet': idx_sheet, 'idx_doc': idx_doc}
     ## open browser and login

@@ -67,9 +67,9 @@ def valida_fill_data_formulario():
 
 def search_elem_in_options(elem_to_search, one_select, tag_name='option'):
     for option in one_select.find_elements_by_tag_name(tag_name):
-        OPTION = normalize(option.text.upper())
-        ELEM_TO_SEARCH = normalize(elem_to_search.upper())
-        logging.debug(" search_elem_in_options | {0} | {1}".format(OPTION, elem_to_search))
+        OPTION = normalize(option.text.upper().replace(" ",""))
+        ELEM_TO_SEARCH = normalize(elem_to_search.upper().replace(" ",""))
+        log.print_debug("search_elem_in_options | {0} | {1}".format(OPTION, ELEM_TO_SEARCH))
         if OPTION == ELEM_TO_SEARCH:
             option.click()
     #input("key")
@@ -90,13 +90,13 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
     }
     """
     #.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
-    numero_res = ( unicodedata.normalize('NFD', data_json['resolucion'] ) ).replace('\n', ' ').replace('\r', '')
+    numero_res = data_json['resolucion'].replace('\n', ' ').replace('\r', '')
     anio = data_json['anio']
-    description = (unicodedata.normalize('NFD', data_json['tema'] ) ).replace('\n', ' ').replace('\r', '')
-    link_pagina = unicodedata.normalize('NFD', data_json['enlace'] )
-    materia = unicodedata.normalize('NFD', data_json['materia'] ).upper()
-    submateria = unicodedata.normalize('NFD', data_json['submateria']).upper()
-    organo_res = unicodedata.normalize('NFD', data_json['or'] )
+    description = data_json['tema'].replace('\n', ' ').replace('\r', '')
+    link_pagina = data_json['enlace']
+    materia = normalize( data_json['materia'] ).upper() 
+    submateria = normalize( data_json['submateria'] ).upper()
+    organo_res = data_json['or']
 
     log.print_debug("{0}".format(numero_res), name_function=__name__)
     driver.implicitly_wait(10)
@@ -129,7 +129,7 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
     search_elem_in_options(str(anio), select[3]) # Anio
     # Operadoras -> buscador general, Expedientes->Expedientes , para Pedidos de opinion Pedidos
     search_elem_in_options('Operadoras', select[5])
-
+    input("pause .........................")
     return valida_fill_data_formulario()
 
 def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0, 'idx_doc': 0},directory="D:/scraping/book23"):
