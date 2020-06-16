@@ -90,9 +90,9 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
     }
     """
     #.encode('ascii', 'xmlcharrefreplace').decode('utf-8')
-    numero_res = normalize( unicodedata.normalize('NFD', data_json['resolucion'] ) )
+    numero_res = ( unicodedata.normalize('NFD', data_json['resolucion'] ) ).replace('\n', ' ').replace('\r', '')
     anio = data_json['anio']
-    description = normalize(unicodedata.normalize('NFD', data_json['tema'] ) )
+    description = (unicodedata.normalize('NFD', data_json['tema'] ) ).replace('\n', ' ').replace('\r', '')
     link_pagina = unicodedata.normalize('NFD', data_json['enlace'] )
     materia = unicodedata.normalize('NFD', data_json['materia'] ).upper()
     submateria = unicodedata.normalize('NFD', data_json['submateria']).upper()
@@ -132,7 +132,7 @@ def fill_data_one_doc(data_json, one_sheet, driver ):
 
     return valida_fill_data_formulario()
 
-def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0, 'idx_doc': 0},directory="D:/scraping/book20"):
+def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0, 'idx_doc': 0},directory="D:/scraping/book23"):
     log.print_info("driver.current_url = [{0}]".format(driver.current_url), name_function="fill_data_formulario")
     idx_sheet = 0  + retomar['idx_sheet']
     while idx_sheet < len(list_sheets): # 3 tipos = ["Consejo Directivo","Presidencia","Gerencia General"]
@@ -174,7 +174,7 @@ def fill_data_formulario(data_json, list_sheets, driver, retomar={'idx_sheet': 0
                 #driver.findElement(By.xpath("//*[@ng-click='goBack()']")).click();
                 btn_back = driver.find_elements_by_xpath("//*[@ng-click='goBack()']")
                 btn_back[0].click()
-                log.print_debug("next document", name_function="fill_data_formulario")
+                log.print_debug("next document", name_function="fill_data_formulario", data_json={'idx':idx+1})
                 time.sleep(5)
             idx = idx + 1
     log.print_info("return drive", name_function="fill_data_formulario")

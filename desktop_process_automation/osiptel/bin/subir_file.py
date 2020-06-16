@@ -62,7 +62,7 @@ def get_files_in_directory(path_to_directory, recursive=False, print_tree=False)
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.DEBUG)
     logging.debug("| INI | {0} testing".format(__file__))
-    directory = "D:/scraping/book20/CD/1"
+    directory = "D:/scraping/book23/CD/1"
     namefile = "res00194CDOSIPTEL.pdf"
     #subir_file(namefile, directory)
     get_files_in_directory(directory, recursive=True, print_tree=True)

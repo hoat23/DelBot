@@ -40,7 +40,7 @@ def load_page_goto(path_media, intentos=3, directory="D:/DPA/img"):
 
     for intento in range(0,intentos):
         if load_page(filename=path_media[-1], directory=directory, sleep_time=1, set_click=True, intentos=2):
-            log.print_debug("Its ok. [{0}]".format(path_media[-1]), name_function="load_page_goto"))
+            log.print_debug("Its ok. [{0}]".format(path_media[-1]), name_function="load_page_goto")
             return True
 
         #Where i am
@@ -74,7 +74,7 @@ def load_page_goto(path_media, intentos=3, directory="D:/DPA/img"):
                     gui.scroll(-100)
                     if load_page(filename="boton_buscador_de_normas_y.png", sleep_time=1, set_click=True, intentos=2):#valida que la pagina ya cargo
                         break
-    log.print_error("don't found path. [{0}]".format(path_media[-1]), name_function="load_page_goto"))
+    log.print_error("don't found path. [{0}]".format(path_media[-1]), name_function="load_page_goto")
     return False
 
 def load_documento_principal(doc_principal, directory_doc_principal, driver):
@@ -184,6 +184,12 @@ def get_name_doc_asociado(filename, path_dir):
     log.print_debug("return [{0}]".format(name), name_function="load_documento_asociado")
     return name
 
+def get_only_name(namefull):
+    list_idx = [idx for idx, x in enumerate(namefull) if x=='.']
+    ext = list_idx[-1]
+    name_only = namefull[:ext]
+    return name_only
+
 def valida_path(path_directory_idx, one_document):
     #subir_file(namefile, directory)
     tree_files = get_files_in_directory(path_directory_idx, recursive=True, print_tree=False)
@@ -197,20 +203,26 @@ def valida_path(path_directory_idx, one_document):
     else:
         files_asociados = []
     doc_principal = ""
+    
     for file in files_principal:
-        if file.find('.pdf')>=0:
+        if len( get_only_name(file) )>=0:
             doc_principal = file
     
     doc_asociados=[]
     for file in files_asociados:
-        if file.find('.pdf')>=0:
-            filename = file[:file.find('.pdf')]+".txt"
+        if len( get_only_name(file) )>=0 and file.find(".txt")<0:
+            only_name = get_only_name(file)
+            if file.find('.pdf')>0:
+                filename = only_name + ".txt"
+            else:
+                filename = file + ".txt"
+            
             name_doc_asociado = get_name_doc_asociado(filename, path_dir)
             doc_asociados.append({"doc_asociado": file, "rename": name_doc_asociado, "directory": path_dir})
     one_document.update({'doc_principal': doc_principal, 'doc_asociados': doc_asociados, 'tree_files': tree_files})
     return one_document
 
-def load_doc_principal_y_asociados(one_document, driver, directory="D:/scraping/book20"):
+def load_doc_principal_y_asociados(one_document, driver, directory="D:/scraping/book23"):
     log.print_info("enlace={0}".format(one_document['enlace']), name_function=__name__)
     path_directory_princ = one_document['tree_files']['path']
     agregar_documentos = driver.find_elements_by_xpath("//*[@ng-click='openLinkPicker()']")
