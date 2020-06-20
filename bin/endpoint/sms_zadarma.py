@@ -16,7 +16,7 @@ YOU_KEY = credentials['zadarma']['key']
 YOUR_SECRET = credentials['zadarma']['secret']
 z_api = api.ZadarmaAPI(key=YOU_KEY, secret=YOUR_SECRET)
 
-def send_sms(text_to_send, to_number="+51999222333", client_obj=client_obj):
+def send_sms(text_to_send, to_number="51999222333" ):
     """
     Parámetros:
     number: número de teléfono para enviar SMS (se pueden enumerar varios separados por comas);
@@ -35,13 +35,13 @@ def send_sms(text_to_send, to_number="+51999222333", client_obj=client_obj):
 if __name__ == "__main__":
     ##################################### ZADARMA TESTING ###########################################
     z_api = api.ZadarmaAPI(key=YOU_KEY, secret=YOUR_SECRET)
-    print( " Get tariff information  - ZADARMA "
+    print( " Get tariff information  - ZADARMA " )
     rpt = z_api.call('/v1/tariff/', format="json")
     print_json(rpt.json())
 
     print( " Send a text message to my cellphone ")
-    my_number_cellphone = 
-    send_sms("Hola! desde zadarma @Hoat23", to_number=my_number_cellphone)
+    my_number_cellphone = credentials['deiner']['cellphone'] # "51999222333"
+    send_sms("Hoat23 05:15 20/06/2020", to_number=my_number_cellphone)
 
     # set callerid for your sip number
     #z_api.call('/v1/sip/callerid/', {'id': '1234567', 'number': '71234567890'}, 'PUT')
