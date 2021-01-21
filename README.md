@@ -27,3 +27,6 @@ Link to video: https://www.youtube.com/watch?v=_3jWPeMhObE
 # Framework By ChatBots
 - https://github.com/microsoft/BotFramework-Composer/blob/main/README.md
 - https://github.com/botbuildercommunity#readme
+
+# Install node-js
+- https://www.digitalocean.com/community/tutorials/como-instalar-node-js-en-ubuntu-18-04-es
