@@ -1,7 +1,7 @@
 #pip install twilio==5.7.0
 # Download the helper library from https://www.twilio.com/docs/python/install
 # Media message max size 5MB
-# Last Update: 20/06/2020
+# Last Update: 20/12/2020
 ######################################################################################
 # https://www.twilio.com/blog/whatsapp-media-support
 """
@@ -16,8 +16,36 @@ from credentials import *
 from twilio.rest import Client
 # Your Account Sid and Auth Token from twilio.com/console
 # DANGER! This is insecure. See http://twil.io/secure
+######################################################################################
+twilio_fiels_whatsapp = [
+"originalMessage",
+"SmsMessageSid",
+"NumMedia",
+"SmsSid",
+"SmsStatus",
+"Body",
+"To",
+"NumSegments",
+"MessageSid",
+"AccountSid",
+"From",
+"ApiVersion",
+"chatId",
+"userId",
+"transport",
+"ts",
+]
 
+def twilio_request_to_json(request, fielstosave=twilio_fiels_whatsapp):
+    data_json = {}
+    for field in fielstosave:
+        data_json.update({ field : request.values.get(field) })
+    print_json(data_json)
+    return data_json
+
+######################################################################################
 client_obj = Client(account_sid, auth_token)
+
 def send_whatsapp(text_to_send, to_number="+51999222333", client_obj=client_obj, img_url="https://images.unsplash.com/photo-1545093149-618ce3bcf49d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=668&q=80"):
     to_num = "whatsapp:{0}".format(  to_number )
     from_num = "whatsapp:{0}".format( "+14155238886" )
@@ -42,8 +70,7 @@ def send_sms(text_to_send, to_number="+51999222333", client_obj=client_obj):
     print(message)
     return message
 ######################################################################################################
-
-if __name__== "__main__"
+if __name__== "__main__":
     ##################################### TWILIO TESTING #############################################
     client_obj = Client(account_sid, auth_token)
     text_to_send = "Hola mundo...\n from Python"
