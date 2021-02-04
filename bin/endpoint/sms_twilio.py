@@ -17,6 +17,9 @@ from twilio.rest import Client
 # Your Account Sid and Auth Token from twilio.com/console
 # DANGER! This is insecure. See http://twil.io/secure
 ######################################################################################
+account_sid = TWILIO['ID']
+auth_token = TWILIO['TOKEN']
+######################################################################################
 twilio_fiels_whatsapp = [
 "originalMessage",
 "SmsMessageSid",
@@ -40,7 +43,6 @@ def twilio_request_to_json(request, fielstosave=twilio_fiels_whatsapp):
     data_json = {}
     for field in fielstosave:
         data_json.update({ field : request.values.get(field) })
-    print_json(data_json)
     return data_json
 
 ######################################################################################
