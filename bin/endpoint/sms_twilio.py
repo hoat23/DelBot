@@ -12,6 +12,7 @@ curl  'https://api.twilio.com/2010-04-01/Accounts/MYUSER/Messages.json' -X POST
 -u MYUSER:MYPASSWORD
 """
 ######################################################################################
+import time
 from credentials import *
 from twilio.rest import Client
 # Your Account Sid and Auth Token from twilio.com/console
@@ -58,23 +59,33 @@ def send_whatsapp(text_to_send, to_number="+51999222333", client_obj=client_obj,
                         from_=from_num,
                         to=to_num
                     )
-    print(message) #
+    
     print(message.sid)
     return message
 
-def send_sms(text_to_send, to_number="+51999222333", client_obj=client_obj):
-    message = client_obj.messages \
-                    .create(
-                        body="Join Earth's mightiest heroes. Like Kevin Bacon.",
-                        from_='+15017122661',
-                        to='+15558675310'
-                    )
-    print(message)
+def send_sms(text_to_send, to_number="+51999222333", from_ = '+15017122661', client_twilio=client_obj):
+    if len(text_to_send)==0:
+        text_to_send = "Join Earth's mightiest heroes. Like Kevin Bacon."
+    
+    message = send_one_message(text_to_send, to_number, from_, client_twilio)
+    return message
+
+def get_twilio_connection():
+    client_twilio = Client(account_sid, auth_token)
+    return client_twilio
+
+def send_one_message(text_to_send, to_number, from_, client_twilio):
+    message = client_twilio.messages \
+                .create(
+                    body=text_to_send,
+                    from_=from_,
+                    to=to_number
+                )
     return message
 ######################################################################################################
 if __name__== "__main__":
     ##################################### TWILIO TESTING #############################################
-    client_obj = Client(account_sid, auth_token)
+    client_obj = get_twilio_connection()
     text_to_send = "Hola mundo...\n from Python"
     img_url = "https://github.com/hoat23/hoat23.github.io/blob/master/img/Hoat23.jpg?raw=true"
     #send_whatsapp(text_to_send, to_number="+51999222333", client_obj=client_obj, img_url=img_url)
