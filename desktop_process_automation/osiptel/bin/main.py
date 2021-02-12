@@ -24,10 +24,6 @@ if __name__ == "__main__":
     idx_doc = 0 #870#868#828#696#516#424#366 #69 #14#int( input('retomar docum:') )
     
     retomar={'idx_sheet': idx_sheet, 'idx_doc': idx_doc}
-    ## open browser and login
-    url = "https://localhost:44347/umbraco/"
-    user = "usuario@osiptel.com"
-    pasw = "maQUEtaHTML567"
     
     driver = login(url, user, pasw)
 
