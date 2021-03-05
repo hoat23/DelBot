@@ -1,7 +1,7 @@
 #pip install twilio==5.7.0
 # Download the helper library from https://www.twilio.com/docs/python/install
 # Media message max size 5MB
-# Last Update: 20/12/2020
+# Last Update: 04/13/2021
 ######################################################################################
 # https://www.twilio.com/blog/whatsapp-media-support
 """
@@ -13,6 +13,7 @@ curl  'https://api.twilio.com/2010-04-01/Accounts/MYUSER/Messages.json' -X POST
 """
 ######################################################################################
 import time
+import datetime
 from credentials import *
 from twilio.rest import Client
 # Your Account Sid and Auth Token from twilio.com/console
@@ -44,6 +45,7 @@ def twilio_request_to_json(request, fielstosave=twilio_fiels_whatsapp):
     data_json = {}
     for field in fielstosave:
         data_json.update({ field : request.values.get(field) })
+    data_json.update({'timestamp': datetime.datetime.utcnow().isoformat()})
     return data_json
 
 ######################################################################################
@@ -60,7 +62,7 @@ def send_whatsapp(text_to_send, to_number="+51999222333", client_obj=client_obj,
                         to=to_num
                     )
     
-    print(message.sid)
+    #print(message.sid)
     return message
 
 def send_sms(text_to_send, to_number="+51999222333", from_ = '+15017122661', client_twilio=client_obj):
@@ -74,14 +76,25 @@ def get_twilio_connection():
     client_twilio = Client(account_sid, auth_token)
     return client_twilio
 
-def send_one_message(text_to_send, to_number, from_, client_twilio):
-    message = client_twilio.messages \
-                .create(
-                    body=text_to_send,
-                    from_=from_,
-                    to=to_number
-                )
-    return message
+def send_one_message(text_to_send, to_number, from_, client_twilio, num_tries=3):
+    if text_to_send == None:
+        print("send_one_message | MSG NULL |".format(text_to_send))
+        return False
+    for i in range(0, num_tries):
+        try:
+            client_twilio.messages \
+                    .create(
+                        body=text_to_send,
+                        from_=from_,
+                        to=to_number
+                    )
+        except Exception as e:
+            print("send_one_message |   ERROR  |{}|".format(text_to_send))
+        else:
+            break
+    else:
+        print("send_one_message | CRITICAL |{}|".format(text_to_send))
+    return True
 ######################################################################################################
 if __name__== "__main__":
     ##################################### TWILIO TESTING #############################################
