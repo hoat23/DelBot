@@ -77,23 +77,32 @@ def get_twilio_connection():
     return client_twilio
 
 def send_one_message(text_to_send, to_number, from_, client_twilio, num_tries=3):
+    img_url=None
     if text_to_send == None:
         print("send_one_message | MSG NULL |".format(text_to_send))
         return False
+
     for i in range(0, num_tries):
         try:
+            if text_to_send.find('img=')>=0:
+               img_url = text_to_send[ text_to_send.find('img=')+4:]
+               print("send_one_message | URL={}".format(img_url))
+               text_to_send = ""
             client_twilio.messages \
                     .create(
+                        media_url=[img_url],
                         body=text_to_send,
                         from_=from_,
                         to=to_number
-                    )
+                    ) 
         except Exception as e:
             print("send_one_message |   ERROR  |{}|".format(text_to_send))
+            print(e)
         else:
             break
     else:
         print("send_one_message | CRITICAL |{}|".format(text_to_send))
+    
     return True
 ######################################################################################################
 if __name__== "__main__":
