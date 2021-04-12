@@ -1,7 +1,7 @@
 #pip install twilio==5.7.0
 # Download the helper library from https://www.twilio.com/docs/python/install
 # Media message max size 5MB
-# Last Update: 04/13/2021
+# Last Update: 04/04/2021
 ######################################################################################
 # https://www.twilio.com/blog/whatsapp-media-support
 """
@@ -16,11 +16,14 @@ import time
 import datetime
 from credentials import *
 from twilio.rest import Client
+from utils_logging import get_logger
 # Your Account Sid and Auth Token from twilio.com/console
 # DANGER! This is insecure. See http://twil.io/secure
 ######################################################################################
 account_sid = TWILIO['ID']
 auth_token = TWILIO['TOKEN']
+######################################################################################
+logger = get_logger('sms_twilio.py', level='DEBUG')
 ######################################################################################
 twilio_fiels_whatsapp = [
 "originalMessage",
@@ -76,17 +79,20 @@ def get_twilio_connection():
     client_twilio = Client(account_sid, auth_token)
     return client_twilio
 
-def send_one_message(text_to_send, to_number, from_, client_twilio, num_tries=3):
+def send_one_message_tw(text_to_send, to_number, from_, client_twilio, num_tries=3):
     img_url=None
     if text_to_send == None:
-        print("send_one_message | MSG NULL |".format(text_to_send))
+        logger.warning("send_one_message | MSG NULL |".format(text_to_send))
         return False
+
+    to_number = "whatsapp:+{}".format(to_number)
+    from_ = "whatsapp:+{}".format(from_)
 
     for i in range(0, num_tries):
         try:
             if text_to_send.find('img=')>=0:
                img_url = text_to_send[ text_to_send.find('img=')+4:]
-               print("send_one_message | URL={}".format(img_url))
+               logger.debug("send_one_message | URL={}".format(img_url))
                text_to_send = ""
             client_twilio.messages \
                     .create(
@@ -96,12 +102,12 @@ def send_one_message(text_to_send, to_number, from_, client_twilio, num_tries=3)
                         to=to_number
                     ) 
         except Exception as e:
-            print("send_one_message |   ERROR  |{}|".format(text_to_send))
-            print(e)
+            logger.error("send_one_message |{}|".format(text_to_send))
+            logger.error(e)
         else:
             break
     else:
-        print("send_one_message | CRITICAL |{}|".format(text_to_send))
+        logger.critical("send_one_message |{}|".format(text_to_send))
     
     return True
 ######################################################################################################
